@@ -6,7 +6,11 @@ module.exports = {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateColumns: {
+        "auto-fit": "repeat(auto-fit, minmax(240px, 1fr))",
+      }
+    },
   },
   plugins: [],
 }

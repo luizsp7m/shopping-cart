@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
-interface LayoutProps {
+interface Props {
   children: ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children }: Props) {
   return (
     <div className="max-w-[1366px] w-full mx-auto p-10">
       {children}
