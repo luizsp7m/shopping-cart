@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineShoppingCart, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { useCart } from "../contexts/CartContext";
 
 interface Props {
   product: {
@@ -14,20 +15,16 @@ interface Props {
 }
 
 export function Product({ product }: Props) {
+  const { addProductToWishlist, wishlist } = useCart();
+
+  const existsInWishlist = useMemo(() => wishlist.includes(product.id), [wishlist]);
+
   const prices = useMemo(() => {
     return {
       spotPrice: product.price.toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
       installmentPrice: (product.price * 1.12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
       installmentValue: (product.price * 1.12 / 12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
     }
-  }, []);
-
-  const addProductToCart = useCallback((productId: string) => {
-    alert("Adicionar produto ao carrinho" + productId);
-  }, []);
-
-  const addToWishlist = useCallback((productId: string) => {
-    alert("Adicionar produto aos favoritos" + productId);
   }, []);
 
   return (
@@ -58,12 +55,12 @@ export function Product({ product }: Props) {
       </div>
 
       <div className="absolute top-2 right-2 overflow-hidden flex items-center rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-        <button onClick={() => addProductToCart(product.id)} type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
-          <AiOutlineShoppingCart size={20} />
+        <button onClick={() => addProductToWishlist(product.id)} type="button" className="h-12 w-12 flex items-center justify-center border-l border-slate-600 bg-slate-700 hover:bg-slate-600">
+          {existsInWishlist ? <AiFillHeart size={20} className="text-red-500" /> : <AiOutlineHeart size={20} />}
         </button>
 
-        <button onClick={() => addToWishlist(product.id)} type="button" className="h-12 w-12 flex items-center justify-center border-l border-slate-600 bg-slate-700 hover:bg-slate-600">
-          <AiOutlineHeart size={20} />
+        <button type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
+          <AiOutlineShoppingCart size={20} />
         </button>
       </div>
     </div>
