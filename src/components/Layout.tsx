@@ -7,7 +7,7 @@ interface Props {
 
 export function Layout({ children }: Props) {
   return (
-    <div className="max-w-[1366px] w-full mx-auto px-8 flex flex-col overflow-hidden">
+    <div className="max-w-[1366px] w-full mx-auto px-8 flex flex-col">
       <Header />
 
       <main>

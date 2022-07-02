@@ -10,6 +10,11 @@ interface CartContextData {
   wishlist: string[];
   products: GetProductsQuery | undefined;
   isLoadingProducts: boolean;
+  addProductToCart: (productId: string) => void;
+  cart: {
+    productId: string;
+    amount: number;
+  }[];
 }
 
 export const CartContext = createContext({} as CartContextData);
@@ -18,7 +23,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const { data: products, loading: isLoadingProducts } = useGetProductsQuery();
 
   const [wishlist, setWishlist] = useState<string[]>(() => {
-    const storagedWishlist = localStorage.getItem("@shoppingcart:cart");
+    const storagedWishlist = localStorage.getItem("@shoppingcart:wishlist");
 
     if (storagedWishlist) {
       return JSON.parse(storagedWishlist);
@@ -26,8 +31,19 @@ export function CartProvider({ children }: CartProviderProps) {
 
     return [];
   });
-  
-  const [cart, setCart] = useState<string[]>([]);
+
+  const [cart, setCart] = useState<{
+    productId: string;
+    amount: number;
+  }[]>(() => {
+    const storagedCart = localStorage.getItem("@shoppingcart:cart");
+
+    if (storagedCart) {
+      return JSON.parse(storagedCart);
+    }
+
+    return [];
+  });
 
   function addProductToWishlist(productId: string) {
     const updateWishlist = [...wishlist];
@@ -39,8 +55,31 @@ export function CartProvider({ children }: CartProviderProps) {
       updateWishlist.push(productId);
     }
 
-    localStorage.setItem("@shoppingcart:cart", JSON.stringify(updateWishlist));
+    localStorage.setItem("@shoppingcart:wishlist", JSON.stringify(updateWishlist));
     setWishlist(updateWishlist);
+  }
+
+  function addProductToCart(productId: string) {
+    if (products) {
+      const updateCart = [...cart];
+      const product = products.products.find(product => product.id === productId);
+
+      if(product?.amount === 0) return alert("Produto sem estoque");
+
+      const exists = updateCart.findIndex(product => product.productId === productId);
+
+      if(exists >= 0) {
+        updateCart.splice(exists, 1);
+      } else {
+        updateCart.push({
+          productId: productId,
+          amount: 1,
+        });
+      }
+
+      localStorage.setItem("@shoppingcart:cart", JSON.stringify(updateCart));
+      setCart(updateCart);
+    }
   }
 
   return (
@@ -49,6 +88,8 @@ export function CartProvider({ children }: CartProviderProps) {
       wishlist,
       products,
       isLoadingProducts,
+      addProductToCart,
+      cart,
     }}>
       {children}
     </CartContext.Provider>

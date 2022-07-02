@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 
 export function Header() {
-  const { wishlist } = useCart();
+  const { wishlist, cart } = useCart();
 
   const wishlistLength = wishlist.length;
+  const cartLength = cart.length;
 
   return (
     <header className="h-24 flex items-center justify-between">
@@ -22,7 +23,10 @@ export function Header() {
         </Link>
 
         <Link to={"/cart"}>
-          <AiOutlineShoppingCart size={26} />
+          <div className="relative hover:opacity-75 transition-opacity">
+            {cartLength > 0 && <span className="absolute w-5 h-5 rounded-full bg-red-500 flex justify-center items-center text-xs font-medium -right-3 -top-2">{cartLength}</span>}
+            <AiOutlineShoppingCart size={26} />
+          </div>
         </Link>
       </div>
     </header>

@@ -8,7 +8,7 @@ export function Wishlist() {
   return (
     <Layout>
       {isLoadingProducts ? "Loading..." : (
-        <div className="grid grid-cols-auto-fit gap-4">
+        <div className="grid grid-cols-auto-fill gap-4">
           {data?.products.map(product => wishlist.includes(product.id) && (
             <Product key={product.id} product={product} />
           ))}

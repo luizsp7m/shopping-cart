@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineShoppingCart, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { BsCart, BsCartFill } from "react-icons/bs";
 import { useCart } from "../contexts/CartContext";
 
 interface Props {
@@ -15,9 +16,10 @@ interface Props {
 }
 
 export function Product({ product }: Props) {
-  const { addProductToWishlist, wishlist } = useCart();
+  const { addProductToWishlist, wishlist, addProductToCart, cart } = useCart();
 
   const existsInWishlist = useMemo(() => wishlist.includes(product.id), [wishlist]);
+  const existsInCart = useMemo(() => cart.includes(product.id), [cart]);
 
   const prices = useMemo(() => {
     return {
@@ -38,7 +40,10 @@ export function Product({ product }: Props) {
       </div>
 
       <div className="flex flex-col gap-4 p-4">
-        <h1 className="text-md font-medium">{product.title}</h1>
+        <div>
+          <h1 className="text-md font-medium">{product.title}</h1>
+          <span className="text-xs text-gray-300">{product.amount} unidade(s)</span>
+        </div>
 
         <div className="flex flex-col gap-[0.15rem]">
           <span className="text-sm text-green-500">à vista</span>
@@ -59,8 +64,8 @@ export function Product({ product }: Props) {
           {existsInWishlist ? <AiFillHeart size={20} className="text-red-500" /> : <AiOutlineHeart size={20} />}
         </button>
 
-        <button type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
-          <AiOutlineShoppingCart size={20} />
+        <button onClick={() => addProductToCart(product.id)} type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
+          {existsInCart ? <BsCartFill size={20} /> : <BsCart size={20} />}
         </button>
       </div>
     </div>
