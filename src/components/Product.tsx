@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { AiOutlineShoppingCart, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsCart, BsCartFill } from "react-icons/bs";
 import { useCart } from "../contexts/CartContext";
 
@@ -8,7 +7,7 @@ interface Props {
     id: string;
     title: string;
     price: number;
-    amount: number;
+    amountInStock: number;
     image: {
       url: string;
     }
@@ -16,18 +15,24 @@ interface Props {
 }
 
 export function Product({ product }: Props) {
-  const { addProductToWishlist, wishlist, addProductToCart, cart } = useCart();
+  const { wishlist, addToWishlist, removeFromWishlist, cart, addToCart, removeFromCart } = useCart();
 
-  const existsInWishlist = useMemo(() => wishlist.includes(product.id), [wishlist]);
-  const existsInCart = useMemo(() => cart.includes(product.id), [cart]);
+  const existsInWishlist = wishlist.find(item => item.productId === product.id);
+  const existsInCart = cart.find(item => item.productId === product.id);
 
-  const prices = useMemo(() => {
-    return {
-      spotPrice: product.price.toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
-      installmentPrice: (product.price * 1.12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
-      installmentValue: (product.price * 1.12 / 12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
-    }
-  }, []);
+  const prices = {
+    spotPrice: product.price.toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
+    installmentPrice: (product.price * 1.12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
+    installmentValue: (product.price * 1.12 / 12).toLocaleString('pt-br', { style: "currency", currency: "BRL" }),
+  }
+
+  const onAddToWishlist = () => {
+    !existsInWishlist ? addToWishlist(product.id) : removeFromWishlist(product.id);
+  }
+
+  const onAddToCart = () => {
+    !existsInCart ? addToCart(product.id) : removeFromCart(product.id);
+  }
 
   return (
     <div className="relative w-full bg-slate-700 rounded overflow-hidden cursor-pointer group">
@@ -42,7 +47,7 @@ export function Product({ product }: Props) {
       <div className="flex flex-col gap-4 p-4">
         <div>
           <h1 className="text-md font-medium">{product.title}</h1>
-          <span className="text-xs text-gray-300">{product.amount} unidade(s)</span>
+          <span className="text-xs text-gray-300">{product.amountInStock} unidade(s)</span>
         </div>
 
         <div className="flex flex-col gap-[0.15rem]">
@@ -60,11 +65,11 @@ export function Product({ product }: Props) {
       </div>
 
       <div className="absolute top-2 right-2 overflow-hidden flex items-center rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-        <button onClick={() => addProductToWishlist(product.id)} type="button" className="h-12 w-12 flex items-center justify-center border-l border-slate-600 bg-slate-700 hover:bg-slate-600">
+        <button onClick={onAddToWishlist} type="button" className="h-12 w-12 flex items-center justify-center border-l border-slate-600 bg-slate-700 hover:bg-slate-600">
           {existsInWishlist ? <AiFillHeart size={20} className="text-red-500" /> : <AiOutlineHeart size={20} />}
         </button>
 
-        <button onClick={() => addProductToCart(product.id)} type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
+        <button onClick={onAddToCart} type="button" className="h-12 w-12 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
           {existsInCart ? <BsCartFill size={20} /> : <BsCart size={20} />}
         </button>
       </div>

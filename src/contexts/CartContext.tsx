@@ -1,29 +1,39 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { GetProductsQuery, useGetProductsQuery } from "../graphql/generated";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { GetProductsQuery, useGetProductByIdQuery, useGetProductsQuery } from "../graphql/generated";
 
 interface CartProviderProps {
   children: ReactNode;
 }
 
 interface CartContextData {
-  addProductToWishlist: (productId: string) => void;
-  wishlist: string[];
-  products: GetProductsQuery | undefined;
-  isLoadingProducts: boolean;
-  addProductToCart: (productId: string) => void;
-  cart: {
-    productId: string;
-    amount: number;
-  }[];
+  data: GetProductsQuery | undefined;
+  loading: boolean;
+  wishlist: Array<WishlistProps>;
+  addToWishlist: (productId: string) => void;
+  removeFromWishlist: (productId: string) => void;
+  cart: Array<CartProps>;
+  addToCart: (productId: string) => void;
+  removeFromCart: (productId: string) => void;
+  addAmountInCart: (props: CartProps) => void;
+  removeAmountInCart: (props: CartProps) => void;
+}
+
+interface WishlistProps {
+  productId: string;
+}
+
+interface CartProps {
+  productId: string;
+  amountInCart: number;
 }
 
 export const CartContext = createContext({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps) {
-  const { data: products, loading: isLoadingProducts } = useGetProductsQuery();
+  const { data, loading } = useGetProductsQuery();
 
-  const [wishlist, setWishlist] = useState<string[]>(() => {
-    const storagedWishlist = localStorage.getItem("@shoppingcart:wishlist");
+  const [wishlist, setWishlist] = useState<WishlistProps[]>(() => {
+    const storagedWishlist = localStorage.getItem("@shopping-cart:wishlist");
 
     if (storagedWishlist) {
       return JSON.parse(storagedWishlist);
@@ -32,11 +42,8 @@ export function CartProvider({ children }: CartProviderProps) {
     return [];
   });
 
-  const [cart, setCart] = useState<{
-    productId: string;
-    amount: number;
-  }[]>(() => {
-    const storagedCart = localStorage.getItem("@shoppingcart:cart");
+  const [cart, setCart] = useState<CartProps[]>(() => {
+    const storagedCart = localStorage.getItem("@shopping-cart:cart");
 
     if (storagedCart) {
       return JSON.parse(storagedCart);
@@ -45,51 +52,82 @@ export function CartProvider({ children }: CartProviderProps) {
     return [];
   });
 
-  function addProductToWishlist(productId: string) {
+  const addToWishlist = (productId: string) => {
     const updateWishlist = [...wishlist];
-    const exists = updateWishlist.indexOf(productId);
-
-    if (exists >= 0) {
-      updateWishlist.splice(exists, 1);
-    } else {
-      updateWishlist.push(productId);
-    }
-
-    localStorage.setItem("@shoppingcart:wishlist", JSON.stringify(updateWishlist));
+    updateWishlist.push({ productId });
+    localStorage.setItem("@shopping-cart:wishlist", JSON.stringify(updateWishlist));
     setWishlist(updateWishlist);
   }
 
-  function addProductToCart(productId: string) {
-    if (products) {
-      const updateCart = [...cart];
-      const product = products.products.find(product => product.id === productId);
+  const removeFromWishlist = (productId: string) => {
+    const updateWishlist = [...wishlist];
+    const productIndex = updateWishlist.findIndex(product => product.productId === productId)
+    updateWishlist.splice(productIndex, 1);
+    localStorage.setItem("@shopping-cart:wishlist", JSON.stringify(updateWishlist));
+    setWishlist(updateWishlist);
+  }
 
-      if(product?.amount === 0) return alert("Produto sem estoque");
+  const addToCart = (productId: string) => {
+    const product = data?.products.find(product => product.id === productId);
 
-      const exists = updateCart.findIndex(product => product.productId === productId);
+    if (!product) return;
 
-      if(exists >= 0) {
-        updateCart.splice(exists, 1);
-      } else {
-        updateCart.push({
-          productId: productId,
-          amount: 1,
-        });
-      }
+    if (product.amountInStock <= 0) return alert("Produto fora de estoque");
 
-      localStorage.setItem("@shoppingcart:cart", JSON.stringify(updateCart));
-      setCart(updateCart);
-    }
+    const updateCart = [...cart];
+    updateCart.push({ productId, amountInCart: 1 });
+    localStorage.setItem("@shopping-cart:cart", JSON.stringify(updateCart));
+    setCart(updateCart);
+  }
+
+  const removeFromCart = (productId: string) => {
+    const updateCart = [...cart];
+    const productIndex = updateCart.findIndex(product => product.productId === productId);
+    updateCart.splice(productIndex, 1);
+    localStorage.setItem("@shopping-cart:cart", JSON.stringify(updateCart));
+    setCart(updateCart);
+  }
+
+  const addAmountInCart = (props: CartProps) => {
+    const product = data?.products.find(product => product.id === props.productId);
+
+    if (!product) return;
+
+    if (props.amountInCart + 1 > product.amountInStock) return alert("Produto fora de estoque");
+
+    const updateCart = [...cart];
+    const productIndex = updateCart.findIndex(item => item.productId === props.productId);
+    updateCart[productIndex].amountInCart = props.amountInCart + 1;
+    localStorage.setItem("@shopping-cart:cart", JSON.stringify(updateCart));
+    setCart(updateCart);
+  }
+
+  const removeAmountInCart = (props: CartProps) => {
+    const product = data?.products.find(product => product.id === props.productId);
+
+    if (!product) return;
+
+    if (props.amountInCart - 1 < 1) return;
+
+    const updateCart = [...cart];
+    const productIndex = updateCart.findIndex(item => item.productId === props.productId);
+    updateCart[productIndex].amountInCart = props.amountInCart - 1;
+    localStorage.setItem("@shopping-cart:cart", JSON.stringify(updateCart));
+    setCart(updateCart);
   }
 
   return (
     <CartContext.Provider value={{
-      addProductToWishlist,
+      data,
+      loading,
       wishlist,
-      products,
-      isLoadingProducts,
-      addProductToCart,
+      addToWishlist,
+      removeFromWishlist,
       cart,
+      addToCart,
+      removeFromCart,
+      addAmountInCart,
+      removeAmountInCart,
     }}>
       {children}
     </CartContext.Provider>

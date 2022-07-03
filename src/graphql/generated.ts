@@ -1229,7 +1229,7 @@ export type PageInfo = {
 
 export type Product = Node & {
   __typename?: 'Product';
-  amount: Scalars['Int'];
+  amountInStock: Scalars['Int'];
   /** The time the document was created */
   createdAt: Scalars['DateTime'];
   /** User that created this document */
@@ -1319,7 +1319,7 @@ export type ProductConnection = {
 };
 
 export type ProductCreateInput = {
-  amount: Scalars['Int'];
+  amountInStock: Scalars['Int'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
   image: AssetCreateOneInlineInput;
   price: Scalars['Float'];
@@ -1360,21 +1360,21 @@ export type ProductManyWhereInput = {
   OR?: InputMaybe<Array<ProductWhereInput>>;
   /** Contains search across all appropriate fields. */
   _search?: InputMaybe<Scalars['String']>;
-  amount?: InputMaybe<Scalars['Int']>;
+  amountInStock?: InputMaybe<Scalars['Int']>;
   /** All values greater than the given value. */
-  amount_gt?: InputMaybe<Scalars['Int']>;
+  amountInStock_gt?: InputMaybe<Scalars['Int']>;
   /** All values greater than or equal the given value. */
-  amount_gte?: InputMaybe<Scalars['Int']>;
+  amountInStock_gte?: InputMaybe<Scalars['Int']>;
   /** All values that are contained in given list. */
-  amount_in?: InputMaybe<Array<Scalars['Int']>>;
+  amountInStock_in?: InputMaybe<Array<Scalars['Int']>>;
   /** All values less than the given value. */
-  amount_lt?: InputMaybe<Scalars['Int']>;
+  amountInStock_lt?: InputMaybe<Scalars['Int']>;
   /** All values less than or equal the given value. */
-  amount_lte?: InputMaybe<Scalars['Int']>;
+  amountInStock_lte?: InputMaybe<Scalars['Int']>;
   /** All values that are not equal to given value. */
-  amount_not?: InputMaybe<Scalars['Int']>;
+  amountInStock_not?: InputMaybe<Scalars['Int']>;
   /** All values that are not contained in given list. */
-  amount_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  amountInStock_not_in?: InputMaybe<Array<Scalars['Int']>>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   /** All values greater than the given value. */
   createdAt_gt?: InputMaybe<Scalars['DateTime']>;
@@ -1483,8 +1483,8 @@ export type ProductManyWhereInput = {
 };
 
 export enum ProductOrderByInput {
-  AmountAsc = 'amount_ASC',
-  AmountDesc = 'amount_DESC',
+  AmountInStockAsc = 'amountInStock_ASC',
+  AmountInStockDesc = 'amountInStock_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   IdAsc = 'id_ASC',
@@ -1500,7 +1500,7 @@ export enum ProductOrderByInput {
 }
 
 export type ProductUpdateInput = {
-  amount?: InputMaybe<Scalars['Int']>;
+  amountInStock?: InputMaybe<Scalars['Int']>;
   image?: InputMaybe<AssetUpdateOneInlineInput>;
   price?: InputMaybe<Scalars['Float']>;
   title?: InputMaybe<Scalars['String']>;
@@ -1524,7 +1524,7 @@ export type ProductUpdateManyInlineInput = {
 };
 
 export type ProductUpdateManyInput = {
-  amount?: InputMaybe<Scalars['Int']>;
+  amountInStock?: InputMaybe<Scalars['Int']>;
   price?: InputMaybe<Scalars['Float']>;
   title?: InputMaybe<Scalars['String']>;
 };
@@ -1582,21 +1582,21 @@ export type ProductWhereInput = {
   OR?: InputMaybe<Array<ProductWhereInput>>;
   /** Contains search across all appropriate fields. */
   _search?: InputMaybe<Scalars['String']>;
-  amount?: InputMaybe<Scalars['Int']>;
+  amountInStock?: InputMaybe<Scalars['Int']>;
   /** All values greater than the given value. */
-  amount_gt?: InputMaybe<Scalars['Int']>;
+  amountInStock_gt?: InputMaybe<Scalars['Int']>;
   /** All values greater than or equal the given value. */
-  amount_gte?: InputMaybe<Scalars['Int']>;
+  amountInStock_gte?: InputMaybe<Scalars['Int']>;
   /** All values that are contained in given list. */
-  amount_in?: InputMaybe<Array<Scalars['Int']>>;
+  amountInStock_in?: InputMaybe<Array<Scalars['Int']>>;
   /** All values less than the given value. */
-  amount_lt?: InputMaybe<Scalars['Int']>;
+  amountInStock_lt?: InputMaybe<Scalars['Int']>;
   /** All values less than or equal the given value. */
-  amount_lte?: InputMaybe<Scalars['Int']>;
+  amountInStock_lte?: InputMaybe<Scalars['Int']>;
   /** All values that are not equal to given value. */
-  amount_not?: InputMaybe<Scalars['Int']>;
+  amountInStock_not?: InputMaybe<Scalars['Int']>;
   /** All values that are not contained in given list. */
-  amount_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  amountInStock_not_in?: InputMaybe<Array<Scalars['Int']>>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   /** All values greater than the given value. */
   createdAt_gt?: InputMaybe<Scalars['DateTime']>;
@@ -3435,19 +3435,67 @@ export enum _SystemDateTimeFieldVariation {
   Localization = 'localization'
 }
 
+export type GetProductByIdQueryVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']>;
+}>;
+
+
+export type GetProductByIdQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, title: string, price: number, amountInStock: number, image: { __typename?: 'Asset', url: string } } | null };
+
 export type GetProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetProductsQuery = { __typename?: 'Query', products: Array<{ __typename?: 'Product', id: string, title: string, price: number, amount: number, image: { __typename?: 'Asset', url: string } }> };
+export type GetProductsQuery = { __typename?: 'Query', products: Array<{ __typename?: 'Product', id: string, title: string, price: number, amountInStock: number, image: { __typename?: 'Asset', url: string } }> };
 
 
+export const GetProductByIdDocument = gql`
+    query GetProductById($id: ID = "") {
+  product(where: {id: $id}) {
+    id
+    title
+    price
+    amountInStock
+    image {
+      url
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductByIdQuery__
+ *
+ * To run a query within a React component, call `useGetProductByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetProductByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetProductByIdQuery, GetProductByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductByIdQuery, GetProductByIdQueryVariables>(GetProductByIdDocument, options);
+      }
+export function useGetProductByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductByIdQuery, GetProductByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductByIdQuery, GetProductByIdQueryVariables>(GetProductByIdDocument, options);
+        }
+export type GetProductByIdQueryHookResult = ReturnType<typeof useGetProductByIdQuery>;
+export type GetProductByIdLazyQueryHookResult = ReturnType<typeof useGetProductByIdLazyQuery>;
+export type GetProductByIdQueryResult = Apollo.QueryResult<GetProductByIdQuery, GetProductByIdQueryVariables>;
 export const GetProductsDocument = gql`
     query GetProducts {
   products {
     id
     title
     price
-    amount
+    amountInStock
     image {
       url
     }

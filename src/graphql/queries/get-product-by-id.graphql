@@ -1,5 +1,5 @@
-query GetProducts {
-  products {
+query GetProductById($id: ID = "") {
+  product(where: {id: $id}) {
     id
     title
     price
