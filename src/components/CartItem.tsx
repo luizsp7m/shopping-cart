@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus, AiFillDelete } from "react-icons/ai";
 import { useCart } from "../contexts/CartContext";
 import { useGetProductByIdQuery } from "../graphql/generated";
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export function CartItem({ productId, amountInCart }: Props) {
-  const { addAmountInCart, removeAmountInCart } = useCart();
+  const { addAmountInCart, removeAmountInCart, removeFromCart } = useCart();
 
   const { data } = useGetProductByIdQuery({
     variables: {
@@ -53,7 +54,7 @@ export function CartItem({ productId, amountInCart }: Props) {
           </button>
         </div>
 
-        <button className="flex items-center gap-2 text-red-400 cursor-pointer hover:text-red-500" type="button">
+        <button onClick={() => removeFromCart(productId)} typeof="button" className="flex items-center gap-2 text-red-400 cursor-pointer hover:text-red-500" type="button">
           <AiFillDelete size={16} />
           <span>Remover</span>
         </button>
@@ -61,7 +62,7 @@ export function CartItem({ productId, amountInCart }: Props) {
 
       <div className="flex flex-col gap-2 items-end">
         <span className="text-sm text-gray-400">Preço à vista</span>
-        <span className="text-green-500 font-bold text-lg">R$ {data.product.price}</span>
+        <span className="text-green-500 font-bold text-lg">{(data.product.price * amountInCart).toLocaleString('pt-br', { style: "currency", currency: "BRL" })}</span>
       </div>
     </div>
   );
